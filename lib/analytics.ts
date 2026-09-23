@@ -45,7 +45,11 @@ export function analyzeDataset(dataset: Dataset, scenario: Scenario): Recommenda
     const baseForecast = weightedForecast(clean);
     const forecastDemand = baseForecast * scenario.demandMultiplier;
     const demandStdDev = stdDev(clean);
-    const inventory = dataset.inventory.find(item => item.sku === product.sku) ?? { onHand: 0, reserved: 0, backorders: 0 };
+    const inventoryRecord = dataset.inventory.find(item => item.sku === product.sku);
+    // Missing inventory is not the same as a confirmed zero balance. Keep a numeric
+    // placeholder for charts, but prevent the item from becoming an orderable SKU.
+    const inventoryKnown = Boolean(inventoryRecord);
+    const inventory = inventoryRecord ?? { onHand: 0, reserved: 0, backorders: 0 };
     const transitRows = dataset.transit.filter(item => item.sku === product.sku);
     const inTransit = transitRows.reduce((sum, row) => sum + row.quantity, 0);
     const suppliers = dataset.suppliers.filter(item => item.sku === product.sku).sort((a, b) => (b.reliabilityScore - a.reliabilityScore) || (a.unitCost - b.unitCost));
@@ -64,22 +68,25 @@ export function analyzeDataset(dataset: Dataset, scenario: Scenario): Recommenda
     const overstockRisk = stockPosition > targetStock * 1.5;
     const warnings: string[] = [];
     if (outliers.length) warnings.push(`${outliers.length} аномалия исключена из базового спроса`);
+    if (!inventoryKnown) warnings.push("Остатки не переданы: позиция не считается подтверждённым нулём");
     if (!selectedSupplier) warnings.push("Нет подходящего поставщика");
     if (historyRows.length < 12) warnings.push("Недостаточно истории для устойчивого прогноза");
     const confidenceScore = Math.max(28, Math.min(96, 90 - outliers.length * 4 - (historyRows.length < 12 ? 25 : 0) - (demandStdDev > forecastDemand * .8 ? 14 : 0)));
     const confidenceReasons = [historyRows.length >= 12 ? "Есть достаточная история продаж" : "История продаж короткая", outliers.length ? "Выбросы отделены от регулярного спроса" : "Продажи стабильны", selectedSupplier ? `Поставщик ${selectedSupplier.reliabilityScore}% надёжности` : "Поставщик не найден"];
     let recommendationStatus: Status = "Заказ не требуется";
-    if (!selectedSupplier) recommendationStatus = "Нет поставщика";
+    if (!inventoryKnown) recommendationStatus = "Недостаточно данных";
+    else if (!selectedSupplier) recommendationStatus = "Нет поставщика";
     else if (historyRows.length < 6) recommendationStatus = "Недостаточно данных";
     else if (stockoutRisk === "critical") recommendationStatus = "Заказать срочно";
     else if (recommendedQuantity > 0 && stockoutRisk !== "overstock") recommendationStatus = "Запланировать заказ";
     else if (overstockRisk) recommendationStatus = "Избыточный запас";
-    const estimatedCost = recommendedQuantity * (selectedSupplier?.unitCost ?? 0);
-    return { sku: product.sku, productName: product.productName, category: product.category, rawHistory, cleanedHistory: clean, outliers, averageDemand, forecastDemand, demandStdDev, forecastMethod: "Взвешенное скользящее среднее (8 недель)", forecastError: Math.round(Math.min(45, demandStdDev / Math.max(forecastDemand, 1) * 100)), onHand: inventory.onHand, reserved: inventory.reserved, backorders: inventory.backorders, inTransit, stockPosition, leadTimeDays, safetyStock, reorderPoint, targetStock, rawRecommendedQuantity, recommendedQuantity, packSize: selectedSupplier?.packSize ?? 1, minOrderQty: selectedSupplier?.minOrderQty ?? 0, daysOfCover, estimatedStockoutDate: stockoutRisk === "critical" || stockoutRisk === "high" ? plusDays(daysOfCover) : null, stockoutRisk, overstockRisk, confidenceScore, confidenceReasons, selectedSupplier, recommendationStatus, warnings, estimatedCost, naiveForecast: weightedForecast(rawHistory) };
+    const orderableQuantity = inventoryKnown ? recommendedQuantity : 0;
+    const estimatedCost = orderableQuantity * (selectedSupplier?.unitCost ?? 0);
+    return { sku: product.sku, productName: product.productName, category: product.category, rawHistory, cleanedHistory: clean, outliers, averageDemand, forecastDemand, demandStdDev, forecastMethod: "Взвешенное скользящее среднее (8 недель)", forecastError: Math.round(Math.min(45, demandStdDev / Math.max(forecastDemand, 1) * 100)), onHand: inventory.onHand, reserved: inventory.reserved, backorders: inventory.backorders, inTransit, stockPosition, inventoryKnown, leadTimeDays, safetyStock, reorderPoint, targetStock, rawRecommendedQuantity, recommendedQuantity: orderableQuantity, packSize: selectedSupplier?.packSize ?? 1, minOrderQty: selectedSupplier?.minOrderQty ?? 0, daysOfCover, estimatedStockoutDate: stockoutRisk === "critical" || stockoutRisk === "high" ? plusDays(daysOfCover) : null, stockoutRisk, overstockRisk, confidenceScore, confidenceReasons, selectedSupplier, recommendationStatus, warnings, estimatedCost, naiveForecast: weightedForecast(rawHistory) };
   });
   let leftBudget = scenario.budget;
   return recommendations.sort((a, b) => (a.stockoutRisk === "critical" ? -1 : 0) - (b.stockoutRisk === "critical" ? -1 : 0) || a.daysOfCover - b.daysOfCover).map(item => {
-    if (scenario.budget <= 0 || item.estimatedCost <= leftBudget) { leftBudget -= item.estimatedCost; return item; }
+    if (item.estimatedCost <= leftBudget) { leftBudget -= item.estimatedCost; return item; }
     return { ...item, recommendedQuantity: 0, estimatedCost: 0, recommendationStatus: "Требуется проверка" as Status, warnings: [...item.warnings, "Не вошло в установленный бюджет"] };
   });
 }

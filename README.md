@@ -15,35 +15,37 @@ StockPilot AI превращает историю продаж, остатки, 
 - Dashboard, фильтры, SKU drawer с графиком raw/cleaned history, what-if сценарии и бюджетный отсев.
 - Импорт `.xlsx`, `.xls`, `.csv` с автоматическим mapping основных колонок и предпросмотром.
 - Purchase-order draft и безопасный CSV экспорт; значения, опасные для spreadsheet formulas, экранируются.
-- Demo Mode работает полностью без API key. Если ключ задан, серверный endpoint использует Responses API только для текстового объяснения переданного детерминированного контекста.
+- StockPilot Procurement Agent: изолированная серверная сессия, versioned dataset/plan, function-calling через Responses API, потоковый журнал действий, безопасный local fallback и подтверждаемые черновики заказов.
+- Demo Mode работает полностью без API key. Если ключ и модель настроены, Responses API выбирает только ограниченный набор функций; исходный Excel и секреты в модель не передаются.
 
 ## Архитектура
 
-`React UI → deterministic analytics in lib/analytics → optional /api/agent → OpenAI Responses API`.
+`React UI → normalised dataset → /api/agent session → deterministic tool registry → optional OpenAI Responses API`.
 
-LLM не видит исходный Excel и не производит количественные расчёты. API key остаётся на сервере; `store: false` включён.
+LLM не видит исходный Excel и не производит количественные расчёты. API key остаётся на сервере; `store: false` включён. Подробности инструментария, сессий, NVIDIA boundary и demo-сценария — в [документации интеграции](docs/OPENAI_INTEGRATION.md).
 
 ## Запуск
 
 ```bash
-npm install
+pnpm install --frozen-lockfile
 copy .env.example .env.local
-npm run dev
+pnpm run dev
 ```
 
 Проверки:
 
 ```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build
+pnpm run typecheck
+pnpm run lint
+pnpm test
+pnpm run build
 ```
 
 ## Переменные окружения
 
 - `OPENAI_API_KEY` — необязательный ключ. При его отсутствии включается Demo Mode.
-- `OPENAI_MODEL` — необязательное имя доступной text-модели.
+- `OPENAI_MODEL` — имя модели, фактически доступной этому ключу. Без неё OpenAI намеренно не вызывается.
+- `AGENT_MAX_ITERATIONS`, `AGENT_MAX_TOOL_CALLS`, `AGENT_RUN_TIMEOUT_MS`, `AGENT_SESSION_TTL_MINUTES` — серверные limits agent-run.
 - `NEXT_PUBLIC_DEMO_MODE=true` — маркировка demo environment.
 
 ## Формулы и ограничения
@@ -56,10 +58,12 @@ npm run build
 
 Это MVP принятия решений. В production нужны согласованные уровни сервиса, проверка исходных данных, ассортиментные ограничения и бизнес-валидация формул.
 
-## Demo script (60–90 секунд)
+## Demo script (90–120 секунд)
 
 1. Нажмите «Загрузить демо-данные».
-2. Откройте `Кабель NYM 3×2.5`.
-3. Покажите продажу 176 шт. как исключённую аномалию, raw vs cleaned history и объяснение рекомендации.
-4. Вернитесь в таблицу и сдвиньте «Задержка» на +7 дней.
-5. Покажите изменение рисков, откройте «Создать заказ» и скачайте CSV-черновик.
+2. В панели **StockPilot Procurement Agent** нажмите «Что требует внимания?» и покажите журнал действий.
+3. Откройте `Кабель NYM 3×2.5`, покажите продажу 176 шт. как исключённую аномалию и запросите объяснение SKU.
+4. Напишите «Подготовь закупочный план в пределах текущего бюджета».
+5. Запустите «Проверить задержку» и покажите отдельную версию расчёта.
+6. Запустите NVIDIA-review: если модуль друга ещё не подключён, панель честно покажет `unavailable`.
+7. Подготовьте черновик: он не отправляет заказ и явно требует подтверждения перед экспортом.

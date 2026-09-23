@@ -11,6 +11,7 @@ export interface Recommendation {
   sku: string; productName: string; category: string; rawHistory: number[]; cleanedHistory: number[]; outliers: Outlier[];
   averageDemand: number; forecastDemand: number; demandStdDev: number; forecastMethod: string; forecastError: number;
   onHand: number; reserved: number; backorders: number; inTransit: number; stockPosition: number;
+  inventoryKnown: boolean;
   leadTimeDays: number; safetyStock: number; reorderPoint: number; targetStock: number; rawRecommendedQuantity: number; recommendedQuantity: number;
   packSize: number; minOrderQty: number; daysOfCover: number; estimatedStockoutDate: string | null; stockoutRisk: Risk; overstockRisk: boolean;
   confidenceScore: number; confidenceReasons: string[]; selectedSupplier: Supplier | null; recommendationStatus: Status; warnings: string[];

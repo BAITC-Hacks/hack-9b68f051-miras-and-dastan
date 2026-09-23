@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, ArrowUpRight, Bot, CheckCircle2, CircleHelp, Code2, PackageCheck, ShieldCheck, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Bot, CheckCircle2, CircleHelp, PackageCheck, ShieldCheck, Wallet } from 'lucide-react';
 import { explanationFor } from '../lib/analytics';
-import type { Recommendation } from '../lib/types';
+import type { Dataset, Recommendation } from '../lib/types';
+import AgentWorkspace from './openai/AgentWorkspace';
 import styles from './PurchaseApiPanel.module.css';
 
 const format = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 });
 const money = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'KZT', maximumFractionDigits: 0 });
-export default function PurchaseApiPanel({ recommendations, onBack }: { recommendations: Recommendation[]; onBack?: () => void }) {
+export default function PurchaseApiPanel({ recommendations, dataset, onBack }: { recommendations: Recommendation[]; dataset: Dataset; onBack?: () => void }) {
   const [sku, setSku] = useState(() => recommendations.find(item => item.sku === 'CAB-NYM-3X2.5')?.sku ?? recommendations[0]?.sku ?? '');
   const [mode, setMode] = useState<'local' | 'api'>('local');
 
@@ -17,24 +18,6 @@ export default function PurchaseApiPanel({ recommendations, onBack }: { recommen
   const totalQuantity = orders.reduce((sum, item) => sum + item.recommendedQuantity, 0);
   const pricedOrders = orders.filter(item => item.selectedSupplier !== null && Number.isFinite(item.selectedSupplier.unitCost));
   const totalCost = pricedOrders.reduce((sum, item) => sum + item.estimatedCost, 0);
-
-  const context = selected ? {
-    sku: selected.sku,
-    productName: selected.productName,
-    forecastDemand: selected.forecastDemand,
-    stockPosition: selected.stockPosition,
-    reorderPoint: selected.reorderPoint,
-    targetStock: selected.targetStock,
-    recommendedQuantity: selected.recommendedQuantity,
-    outliers: selected.outliers.length,
-    supplier: selected.selectedSupplier?.supplierName ?? null,
-    cost: selected.selectedSupplier ? selected.estimatedCost : null,
-    leadTimeDays: selected.leadTimeDays,
-    minOrderQty: selected.minOrderQty,
-    packSize: selected.packSize,
-    recommendationStatus: selected.recommendationStatus,
-    warnings: selected.warnings,
-  } : null;
 
   return <section className={styles.panel} aria-labelledby="purchase-api-title">
     <div className={styles.heading}>
@@ -74,7 +57,7 @@ export default function PurchaseApiPanel({ recommendations, onBack }: { recommen
       <div className={styles.analysisCard}>
         <div className={styles.tabs} role="tablist" aria-label="Режим анализа">
           <button id="local-analysis-tab" type="button" role="tab" aria-selected={mode === 'local'} aria-controls="local-analysis-content" className={mode === 'local' ? styles.activeTab : ''} onClick={() => setMode('local')}><ShieldCheck size={16} aria-hidden="true" /> Локальный разбор</button>
-          <button id="api-analysis-tab" type="button" role="tab" aria-selected={mode === 'api'} aria-controls="api-analysis-content" className={mode === 'api' ? styles.activeTab : ''} onClick={() => setMode('api')}><Bot size={16} aria-hidden="true" /> API-ассистент</button>
+          <button id="api-analysis-tab" type="button" role="tab" aria-selected={mode === 'api'} aria-controls="api-analysis-content" className={mode === 'api' ? styles.activeTab : ''} onClick={() => setMode('api')}><Bot size={16} aria-hidden="true" /> Агент закупок</button>
         </div>
         {mode === 'local' ? <div id="local-analysis-content" role="tabpanel" aria-labelledby="local-analysis-tab" className={styles.analysisBody}>
           <span className={styles.localBadge}><CheckCircle2 size={15} aria-hidden="true" /> Без отправки данных</span>
@@ -85,14 +68,7 @@ export default function PurchaseApiPanel({ recommendations, onBack }: { recommen
           <p className={styles.note}>Этот разбор построен по правилам приложения. Он не создаёт заказ у поставщика.</p>
           <button type="button" className={styles.primaryButton} onClick={() => setMode('api')}>Посмотреть интерфейс API <ArrowUpRight size={16} aria-hidden="true" /></button>
         </div> : <div id="api-analysis-content" role="tabpanel" aria-labelledby="api-analysis-tab" className={styles.analysisBody}>
-          <span className={styles.apiBadge}><Bot size={15} aria-hidden="true" /> API пока не подключён</span>
-          <h2>Будущая панель ассистента</h2>
-          <p className={styles.description}>Здесь можно будет задавать вопросы по выбранному товару. Пока доступен только предпросмотр интерфейса: данные никуда не отправляются.</p>
-          <label className={styles.field} htmlFor="api-question">Вопрос ассистенту<textarea id="api-question" placeholder="Почему система рекомендует это количество и что проверить перед закупкой?" rows={4} disabled /></label>
-          <div className={styles.response}><div><Bot size={18} aria-hidden="true" /><strong>Место для ответа</strong></div><p>После подключения API здесь появится объяснение, связанное с расчётами выбранного SKU.</p><small>Сейчас рекомендацию можно изучить во вкладке «Локальный разбор».</small></div>
-          <p className={styles.note}>Ключи и настройки подключения в этом макете не используются.</p>
-          <button type="button" className={styles.primaryButton} onClick={() => setMode('local')}><ArrowLeft size={16} aria-hidden="true" /> Открыть локальный разбор</button>
-          <details className={styles.technical}><summary><Code2 size={15} aria-hidden="true" /> Данные выбранного товара</summary><p>Сводка текущего расчёта. Отображается только в браузере.</p><pre>{JSON.stringify(context, null, 2)}</pre></details>
+          <AgentWorkspace dataset={dataset} selectedSku={selected?.sku ?? null} onSelectSku={setSku} />
         </div>}
       </div>
     </div>}
