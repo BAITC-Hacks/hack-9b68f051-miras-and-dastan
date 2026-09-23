@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "StockPilot AI — Автономный агент пополнения",
+  title: "StockPilot AI — Рабочая панель закупок",
   description: "Детерминированные рекомендации по пополнению склада",
 };
 
