@@ -1,0 +1,32 @@
+'use client';
+
+// Copy this optional bridge to components/StockPilotBacktestBridge.tsx in the host.
+import type { Dataset } from '../lib/types';
+import { detectOutliers, mean, stdDev, weightedForecast } from '../lib/analytics';
+import { BacktestPanel } from '../stockpilot-backtest/src/BacktestPanel';
+import { createStockPilotStrategy, fromStockPilotDataset, naiveStrategy, type BacktestInput, type StockPilotBacktestOptions } from '../stockpilot-backtest/src/core';
+
+const productionStrategy = createStockPilotStrategy({ detectOutliers, mean, stdDev, weightedForecast });
+
+export default function StockPilotBacktestBridge({ dataset, options, revision }: {
+  dataset: Dataset;
+  options: StockPilotBacktestOptions;
+  revision: string;
+}) {
+  let input: BacktestInput;
+  try {
+    input = fromStockPilotDataset(dataset, options);
+  } catch (error) {
+    return <p role="alert">{error instanceof Error ? error.message : 'Проверьте историю и настройки проверки.'}</p>;
+  }
+  return <BacktestPanel
+      key={`${revision}:${options.sku}`}
+      initialInput={input}
+      allowDemo={false}
+      strategies={[
+        { name: 'Обычное среднее', run: naiveStrategy },
+        { name: 'StockPilot · основной прогноз', run: productionStrategy },
+      ]}
+      strategyNotice="Подключены функции прогноза из lib/analytics. Закупки рассчитывает единая историческая политика."
+  />;
+}
