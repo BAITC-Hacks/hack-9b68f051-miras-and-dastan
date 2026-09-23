@@ -1,0 +1,1400 @@
+[
+  {
+    "sku": "CAB-NYM-3X2.5",
+    "label": "Кабель NYM · разовый всплеск",
+    "kind": "spike",
+    "unitCost": 850,
+    "leadTimeDays": 21,
+    "packSize": 5,
+    "observations": [
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-01-06",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-01-13",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-01-20",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-01-27",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-02-03",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-02-10",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-02-17",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-02-24",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-03-03",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-03-10",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-03-17",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-03-24",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-03-31",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-04-07",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-04-14",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-04-21",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-04-28",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-05-05",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-05-12",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-05-19",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-05-26",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-06-02",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-06-09",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-06-16",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-06-23",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-06-30",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-07-07",
+        "demand": 180
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-07-14",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-07-21",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-07-28",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-08-04",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-08-11",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-08-18",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-08-25",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-09-01",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-09-08",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-09-15",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-09-22",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-09-29",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-10-06",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-10-13",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-10-20",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-10-27",
+        "demand": 11
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-11-03",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-11-10",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-11-17",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-11-24",
+        "demand": 10
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-12-01",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-12-08",
+        "demand": 8
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-12-15",
+        "demand": 12
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-12-22",
+        "demand": 9
+      },
+      {
+        "sku": "CAB-NYM-3X2.5",
+        "date": "2025-12-29",
+        "demand": 12
+      }
+    ]
+  },
+  {
+    "sku": "STABLE-01",
+    "label": "Крепёж · стабильный спрос",
+    "kind": "stable",
+    "unitCost": 120,
+    "leadTimeDays": 14,
+    "packSize": 10,
+    "observations": [
+      {
+        "sku": "STABLE-01",
+        "date": "2025-01-06",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-01-13",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-01-20",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-01-27",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-02-03",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-02-10",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-02-17",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-02-24",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-03-03",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-03-10",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-03-17",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-03-24",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-03-31",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-04-07",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-04-14",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-04-21",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-04-28",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-05-05",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-05-12",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-05-19",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-05-26",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-06-02",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-06-09",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-06-16",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-06-23",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-06-30",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-07-07",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-07-14",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-07-21",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-07-28",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-08-04",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-08-11",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-08-18",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-08-25",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-09-01",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-09-08",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-09-15",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-09-22",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-09-29",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-10-06",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-10-13",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-10-20",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-10-27",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-11-03",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-11-10",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-11-17",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-11-24",
+        "demand": 9
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-12-01",
+        "demand": 8
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-12-08",
+        "demand": 11
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-12-15",
+        "demand": 10
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-12-22",
+        "demand": 12
+      },
+      {
+        "sku": "STABLE-01",
+        "date": "2025-12-29",
+        "demand": 8
+      }
+    ]
+  },
+  {
+    "sku": "GROW-01",
+    "label": "Автомат · растущий спрос",
+    "kind": "growth",
+    "unitCost": 2400,
+    "leadTimeDays": 14,
+    "packSize": 5,
+    "observations": [
+      {
+        "sku": "GROW-01",
+        "date": "2025-01-06",
+        "demand": 7
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-01-13",
+        "demand": 7
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-01-20",
+        "demand": 8
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-01-27",
+        "demand": 8
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-02-03",
+        "demand": 8
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-02-10",
+        "demand": 8
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-02-17",
+        "demand": 11
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-02-24",
+        "demand": 10
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-03-03",
+        "demand": 12
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-03-10",
+        "demand": 12
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-03-17",
+        "demand": 13
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-03-24",
+        "demand": 13
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-03-31",
+        "demand": 15
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-04-07",
+        "demand": 15
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-04-14",
+        "demand": 15
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-04-21",
+        "demand": 15
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-04-28",
+        "demand": 17
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-05-05",
+        "demand": 16
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-05-12",
+        "demand": 19
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-05-19",
+        "demand": 18
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-05-26",
+        "demand": 19
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-06-02",
+        "demand": 21
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-06-09",
+        "demand": 20
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-06-16",
+        "demand": 21
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-06-23",
+        "demand": 22
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-06-30",
+        "demand": 23
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-07-07",
+        "demand": 23
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-07-14",
+        "demand": 24
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-07-21",
+        "demand": 26
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-07-28",
+        "demand": 24
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-08-04",
+        "demand": 25
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-08-11",
+        "demand": 27
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-08-18",
+        "demand": 28
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-08-25",
+        "demand": 28
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-09-01",
+        "demand": 28
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-09-08",
+        "demand": 31
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-09-15",
+        "demand": 30
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-09-22",
+        "demand": 30
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-09-29",
+        "demand": 33
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-10-06",
+        "demand": 31
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-10-13",
+        "demand": 33
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-10-20",
+        "demand": 33
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-10-27",
+        "demand": 32
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-11-03",
+        "demand": 34
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-11-10",
+        "demand": 35
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-11-17",
+        "demand": 37
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-11-24",
+        "demand": 37
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-12-01",
+        "demand": 37
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-12-08",
+        "demand": 39
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-12-15",
+        "demand": 37
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-12-22",
+        "demand": 40
+      },
+      {
+        "sku": "GROW-01",
+        "date": "2025-12-29",
+        "demand": 40
+      }
+    ]
+  },
+  {
+    "sku": "SEASON-01",
+    "label": "Светильник · сезонный спрос",
+    "kind": "season",
+    "unitCost": 3600,
+    "leadTimeDays": 21,
+    "packSize": 5,
+    "observations": [
+      {
+        "sku": "SEASON-01",
+        "date": "2025-01-06",
+        "demand": 15
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-01-13",
+        "demand": 20
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-01-20",
+        "demand": 21
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-01-27",
+        "demand": 26
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-02-03",
+        "demand": 26
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-02-10",
+        "demand": 27
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-02-17",
+        "demand": 28
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-02-24",
+        "demand": 28
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-03-03",
+        "demand": 27
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-03-10",
+        "demand": 28
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-03-17",
+        "demand": 23
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-03-24",
+        "demand": 22
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-03-31",
+        "demand": 19
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-04-07",
+        "demand": 17
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-04-14",
+        "demand": 14
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-04-21",
+        "demand": 12
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-04-28",
+        "demand": 9
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-05-05",
+        "demand": 8
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-05-12",
+        "demand": 5
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-05-19",
+        "demand": 4
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-05-26",
+        "demand": 3
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-06-02",
+        "demand": 7
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-06-09",
+        "demand": 7
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-06-16",
+        "demand": 8
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-06-23",
+        "demand": 11
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-06-30",
+        "demand": 14
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-07-07",
+        "demand": 16
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-07-14",
+        "demand": 18
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-07-21",
+        "demand": 22
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-07-28",
+        "demand": 25
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-08-04",
+        "demand": 27
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-08-11",
+        "demand": 28
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-08-18",
+        "demand": 28
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-08-25",
+        "demand": 27
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-09-01",
+        "demand": 28
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-09-08",
+        "demand": 27
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-09-15",
+        "demand": 23
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-09-22",
+        "demand": 22
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-09-29",
+        "demand": 20
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-10-06",
+        "demand": 16
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-10-13",
+        "demand": 14
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-10-20",
+        "demand": 12
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-10-27",
+        "demand": 9
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-11-03",
+        "demand": 6
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-11-10",
+        "demand": 5
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-11-17",
+        "demand": 5
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-11-24",
+        "demand": 4
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-12-01",
+        "demand": 5
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-12-08",
+        "demand": 7
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-12-15",
+        "demand": 10
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-12-22",
+        "demand": 10
+      },
+      {
+        "sku": "SEASON-01",
+        "date": "2025-12-29",
+        "demand": 13
+      }
+    ]
+  },
+  {
+    "sku": "SHORT-01",
+    "label": "Новинка · короткая история",
+    "kind": "short",
+    "leadTimeDays": 7,
+    "packSize": 1,
+    "observations": [
+      {
+        "sku": "SHORT-01",
+        "date": "2025-01-06",
+        "demand": 11
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-01-13",
+        "demand": 11
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-01-20",
+        "demand": 11
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-01-27",
+        "demand": 11
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-02-03",
+        "demand": 11
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-02-10",
+        "demand": 8
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-02-17",
+        "demand": 10
+      },
+      {
+        "sku": "SHORT-01",
+        "date": "2025-02-24",
+        "demand": 8
+      }
+    ]
+  },
+  {
+    "sku": "ZERO-01",
+    "label": "Резерв · нулевой спрос",
+    "kind": "zero",
+    "leadTimeDays": 0,
+    "packSize": 1,
+    "observations": [
+      {
+        "sku": "ZERO-01",
+        "date": "2025-01-06",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-01-13",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-01-20",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-01-27",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-02-03",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-02-10",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-02-17",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-02-24",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-03-03",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-03-10",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-03-17",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-03-24",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-03-31",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-04-07",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-04-14",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-04-21",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-04-28",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-05-05",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-05-12",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-05-19",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-05-26",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-06-02",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-06-09",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-06-16",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-06-23",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-06-30",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-07-07",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-07-14",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-07-21",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-07-28",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-08-04",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-08-11",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-08-18",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-08-25",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-09-01",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-09-08",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-09-15",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-09-22",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-09-29",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-10-06",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-10-13",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-10-20",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-10-27",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-11-03",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-11-10",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-11-17",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-11-24",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-12-01",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-12-08",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-12-15",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-12-22",
+        "demand": 0
+      },
+      {
+        "sku": "ZERO-01",
+        "date": "2025-12-29",
+        "demand": 0
+      }
+    ]
+  }
+]
