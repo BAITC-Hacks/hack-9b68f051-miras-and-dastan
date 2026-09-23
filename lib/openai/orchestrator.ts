@@ -86,13 +86,15 @@ async function runFallback(session: AgentSession, question: string, selectedSku:
     const planId = await planFor(); if (planId) await runLocalTool("request_nvidia_review", { planId });
   } else if (/backtest|бэктест/.test(text)) await runLocalTool("get_backtest_summary", {});
   else await runLocalTool("get_dataset_summary", {});
-  const last = results.at(-1)!;
-  return { answer: `${toolSummary(last)} Тестовый режим: ответ сформирован локально из проверенных расчётов.`, results };
+  const last = results.at(-1);
+  return { answer: `${last ? toolSummary(last) : "Выбран ранее рассчитанный план. Для изменения укажите новые параметры."} Тестовый режим: ответ сформирован локально из проверенных расчётов.`, results };
 }
 
 export async function runAgent(options: RunAgentOptions): Promise<AgentRunResult> {
-  const { session, question, selectedSku, activePlanId, signal } = options;
+  const { session, question, selectedSku, activePlanId } = options;
   const config = options.config ?? getAgentConfig(); const runId = randomUUID(); const emit = eventEmitter(runId, options.onEvent); const facts: AgentFact[] = []; const warnings: string[] = []; const toolResults: ToolEnvelope[] = []; let currentPlanId = activePlanId ?? undefined; let calls = 0;
+  const timeout = AbortSignal.timeout(config.timeoutMs);
+  const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
   const invoke = async (name: string, args: unknown) => {
     if (signal?.aborted) throw new DOMException("Run cancelled", "AbortError");
     emit(name === "request_nvidia_review" ? "review_started" : "tool_started", "running", `Выполняется ${name}`, undefined, name);

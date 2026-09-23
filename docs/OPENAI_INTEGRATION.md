@@ -19,7 +19,7 @@ The active tool set is selected from the request intent rather than exposing eve
 - known supplier comparison;
 - an NVIDIA-review boundary, backtest availability reporting, draft purchase orders, supplier-message drafts and report payloads.
 
-Drafts are grouped by supplier, versioned and idempotent. They are never sent. Creating a draft emits a `confirmation_required` event. CSV export remains guarded against spreadsheet formula injection.
+Agent drafts are grouped by supplier, versioned and idempotent. They are never sent. Creating a draft emits a `confirmation_required` event. Agent drafts are not yet connected to the UI export flow. The separate Recommendations → Drafts flow supports CSV export guarded against spreadsheet formula injection.
 
 ## OpenAI mode and fallback
 
@@ -41,7 +41,7 @@ The existing SKU-level `stockpilot-backtest` is still available in the Backtest 
 2. Ask for urgent products, then open one SKU from an evidence card.
 3. Ask for a budgeted purchase plan and inspect the tool timeline and fact cards.
 4. Run the delay scenario, NVIDIA review, and a draft creation request.
-5. Show the confirmation warning before exporting a draft.
+5. Show the confirmation warning. For a downloadable CSV, use Recommendations → select valid rows → Drafts; this is a separate UI draft, not an export of the agent draft.
 
 Run checks with the repository package manager:
 
