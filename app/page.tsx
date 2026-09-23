@@ -1,142 +1,119 @@
-"use client";
+'use client';
 
-import { ChangeEvent, useMemo, useState } from "react";
-import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
-} from "recharts";
-import {
-  AlertTriangle, ArrowDownToLine, Bot, Boxes, ChevronRight, CircleCheck, FileSpreadsheet, Filter, Loader2, PackageCheck, Play, Search, Send, ShoppingCart, SlidersHorizontal, Sparkles, Upload, X, Zap,
-} from "lucide-react";
-import * as XLSX from "xlsx";
-import { analyzeDataset } from "../lib/analytics";
-import { makeDemoData } from "../lib/demo-data";
-import type { Dataset, Recommendation, Scenario, Status } from "../lib/types";
+import { useMemo, useState } from 'react';
+import { Activity, ArrowRight, BarChart3, Boxes, Check, ChevronRight, Database, FileSpreadsheet, History, LayoutDashboard, Menu, Package, Play, ShoppingCart, SlidersHorizontal, Upload, X } from 'lucide-react';
+import { analyzeDataset } from '../lib/analytics';
+import { makeDemoData } from '../lib/demo-data';
+import type { Dataset, Scenario } from '../lib/types';
+import { BASE_SCENARIO, createDraft, dateLabel, integer, money, orderBlockReason, summarize, type Draft, type ProblemFilter } from '../lib/presentation';
+import { getWeeklyStructureIssues } from '../lib/import-data';
+import { navigate, useSection, type Section } from '../hooks/useSection';
+import { Button, EmptyState, Kpi, Notice, PageHeader } from '../components/ui';
+import { INITIAL_QUERY, RecommendationsTable, type TableQuery } from '../components/RecommendationsTable';
+import { ImportPanel } from '../components/ImportPanel';
+import { SkuDrawer } from '../components/SkuDrawer';
+import { ScenarioPanel } from '../components/ScenarioPanel';
+import { DraftPanel } from '../components/DraftPanel';
+import { HistoryPanel } from '../components/HistoryPanel';
+import styles from '../components/Workspace.module.css';
 
-const initialScenario: Scenario = { demandMultiplier: 1, delayDays: 0, serviceLevel: .95, budget: 1_500_000 };
-const currency = new Intl.NumberFormat("ru-RU", { style: "currency", currency: "KZT", maximumFractionDigits: 0 });
-const number = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
-const statusClass: Record<Status, string> = {
-  "Заказать срочно": "critical", "Запланировать заказ": "high", "Заказ не требуется": "healthy", "Избыточный запас": "overstock", "Требуется проверка": "review", "Недостаточно данных": "review", "Нет поставщика": "review",
-};
-const synonyms: Record<string, string[]> = {
-  date: ["дата", "date", "sales date", "дата продажи"], sku: ["sku", "артикул", "код", "код товара", "номенклатура"], productName: ["товар", "наименование", "название", "product", "product name"], quantity: ["количество", "кол-во", "продажи", "qty", "quantity", "units"],
-};
-
-function inferMapping(headers: string[]) {
-  return Object.fromEntries(Object.entries(synonyms).map(([field, names]) => [field, headers.find(header => names.some(name => header.toLowerCase().includes(name))) || ""]));
-}
-function safeCsv(value: unknown) { const text = String(value ?? ""); return /^[=+\-@]/.test(text) ? `'${text}` : text; }
-function downloadCsv(rows: Recommendation[]) {
-  const header = ["Статус", "SKU", "Товар", "Поставщик", "Количество", "Цена", "Сумма", "Ожидаемая дата"];
-  const lines = rows.map(item => [item.recommendationStatus, item.sku, item.productName, item.selectedSupplier?.supplierName ?? "", item.recommendedQuantity, item.selectedSupplier?.unitCost ?? 0, item.estimatedCost, item.estimatedStockoutDate ?? ""].map(safeCsv).map(value => `"${value.replaceAll('"', '""')}"`).join(";"));
-  const blob = new Blob([[header.join(";"), ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "stockpilot-purchase-order.csv"; a.click(); URL.revokeObjectURL(a.href);
-}
+const sections = [
+  { id: 'overview', name: 'Обзор', icon: LayoutDashboard },
+  { id: 'recommendations', name: 'Рекомендации', icon: Package },
+  { id: 'backtest', name: 'Проверка на истории', icon: History },
+  { id: 'scenarios', name: 'Сценарии', icon: SlidersHorizontal },
+  { id: 'drafts', name: 'Черновики заказов', icon: ShoppingCart },
+  { id: 'data', name: 'Данные', icon: Database },
+] as const;
+type Source = { kind: 'demo' | 'import'; name: string };
+type Message = { text: string; tone: 'success' | 'error' | 'info' | 'warning' };
 
 export default function Home() {
+  const section = useSection();
   const [dataset, setDataset] = useState<Dataset | null>(null);
-  const [scenario, setScenario] = useState(initialScenario);
-  const [filter, setFilter] = useState("Все");
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Recommendation | null>(null);
-  const [showOrder, setShowOrder] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
-  const [fileRows, setFileRows] = useState<Record<string, unknown>[]>([]);
-  const [mapping, setMapping] = useState<Record<string, string>>({});
-  const [fileName, setFileName] = useState("");
-  const [processing, setProcessing] = useState(false);
-  const [agentReply, setAgentReply] = useState("");
-  const [asking, setAsking] = useState(false);
-  const [notice, setNotice] = useState("");
-
+  const [source, setSource] = useState<Source | null>(null);
+  const [dataRevision, setDataRevision] = useState(0);
+  const [scenario, setScenario] = useState<Scenario>(BASE_SCENARIO);
+  const [query, setQuery] = useState<TableQuery>(INITIAL_QUERY);
+  const [selectedSkus, setSelectedSkus] = useState<string[]>([]);
+  const [selectedSku, setSelectedSku] = useState<string | null>(null);
+  const [historySku, setHistorySku] = useState('CAB-NYM-3X2.5');
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [message, setMessage] = useState<Message | null>(null);
+  const salesOnly = source?.kind === 'import';
   const recommendations = useMemo(() => dataset ? analyzeDataset(dataset, scenario) : [], [dataset, scenario]);
-  const visible = useMemo(() => recommendations.filter(item => {
-    const matchesText = `${item.sku} ${item.productName} ${item.category}`.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === "Все" || (filter === "Критические" && item.recommendationStatus === "Заказать срочно") || (filter === "Заказать" && ["Заказать срочно", "Запланировать заказ"].includes(item.recommendationStatus)) || (filter === "Аномалии" && item.outliers.length > 0) || (filter === "Проверка" && ["Требуется проверка", "Нет поставщика", "Недостаточно данных"].includes(item.recommendationStatus));
-    return matchesText && matchesFilter;
-  }), [recommendations, filter, search]);
-  const kpis = useMemo(() => ({
-    sku: recommendations.length,
-    critical: recommendations.filter(item => item.recommendationStatus === "Заказать срочно").length,
-    anomalies: recommendations.reduce((sum, item) => sum + item.outliers.length, 0),
-    orderCost: recommendations.reduce((sum, item) => sum + item.estimatedCost, 0),
-    prevented: recommendations.filter(item => item.outliers.length).reduce((sum, item) => sum + Math.max(0, item.naiveForecast - item.forecastDemand) * 4 * (item.selectedSupplier?.unitCost ?? 0), 0),
-    confidence: recommendations.length ? Math.round(recommendations.reduce((sum, item) => sum + item.confidenceScore, 0) / recommendations.length) : 0,
-  }), [recommendations]);
-  const riskData = useMemo(() => [
-    { label: "Критичный", value: recommendations.filter(r => r.stockoutRisk === "critical").length, color: "#fb7185" },
-    { label: "Высокий", value: recommendations.filter(r => r.stockoutRisk === "high").length, color: "#fbbf24" },
-    { label: "Стабильный", value: recommendations.filter(r => r.stockoutRisk === "healthy").length, color: "#34d399" },
-    { label: "Проверка", value: recommendations.filter(r => r.stockoutRisk === "review").length, color: "#94a3b8" },
-  ], [recommendations]);
-  const categoryData = useMemo(() => Object.entries(recommendations.reduce<Record<string, number>>((acc, item) => { acc[item.category] = (acc[item.category] || 0) + item.recommendedQuantity; return acc; }, {})).map(([name, quantity]) => ({ name, quantity })), [recommendations]);
+  const base = useMemo(() => dataset ? analyzeDataset(dataset, BASE_SCENARIO) : [], [dataset]);
+  const summary = useMemo(() => summarize(recommendations, salesOnly), [recommendations, salesOnly]);
+  const weeklyIssues = useMemo(() => dataset ? getWeeklyStructureIssues(dataset.sales) : [], [dataset]);
+  const selectedItem = recommendations.find(item => item.sku === selectedSku);
+  const revision = `${dataRevision}:${JSON.stringify(scenario)}`;
+  const dates = useMemo(() => dataset?.sales.map(row => row.date).sort() ?? [], [dataset]);
+  const period = dates.length ? `${dateLabel(dates[0])} — ${dateLabel(dates[dates.length - 1])}` : 'История ещё не загружена';
+  const sourceLabel = source?.kind === 'demo' ? 'Демо-данные' : source ? 'Импортированный файл' : 'Нет данных';
 
-  function loadDemo() { setDataset(makeDemoData()); setScenario(initialScenario); setShowUpload(false); setFileRows([]); setNotice("Демо-данные загружены: 32 SKU и 36 недель истории"); }
-  function runAnalysis() { if (!dataset) return loadDemo(); setProcessing(true); window.setTimeout(() => { setProcessing(false); setNotice(`Анализ завершён: ${recommendations.length} SKU обработано`); }, 850); }
-  async function onFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]; if (!file) return;
-    if (file.size > 20 * 1024 * 1024) { setNotice("Файл больше 20 МБ. Для демо используйте файл меньшего размера."); return; }
-    try {
-      const buffer = await file.arrayBuffer(); const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
-      if (!rows.length) throw new Error("empty");
-      const headers = Object.keys(rows[0]); setFileRows(rows); setMapping(inferMapping(headers)); setFileName(file.name); setShowUpload(true); setNotice(`Файл прочитан: ${rows.length} строк, лист «${workbook.SheetNames[0]}»`);
-    } catch { setNotice("Не удалось прочитать файл. Поддерживаются CSV и XLSX с первой строкой заголовков."); }
+  function go(next: Section) { navigate(next); setMenuOpen(false); }
+  function openImport() { setImporting(true); setMessage(null); go('data'); }
+  function loadData(data: Dataset, nextSource: Source) {
+    setDataset(data); setSource(nextSource); setDataRevision(value => value + 1); setScenario(BASE_SCENARIO); setSelectedSkus([]); setSelectedSku(null); setQuery(INITIAL_QUERY); setImporting(false);
+    setHistorySku(data.products.some(product => product.sku === 'CAB-NYM-3X2.5') ? 'CAB-NYM-3X2.5' : data.products[0]?.sku ?? '');
+    setMessage({ text: nextSource.kind === 'demo' ? `Демо загружено: ${data.products.length} товаров. Все показатели рассчитаны по этому набору.` : `Файл «${nextSource.name}» импортирован. Закупки недоступны: загружены только продажи.`, tone: nextSource.kind === 'demo' ? 'success' : 'warning' });
+    go(nextSource.kind === 'demo' ? 'overview' : 'data');
   }
-  function useImportedData() {
-    const accepted = fileRows.flatMap((row, index) => {
-      const sku = String(row[mapping.sku] ?? "").trim(); const dateValue = row[mapping.date]; const quantity = Number(String(row[mapping.quantity] ?? "").replace(",", "."));
-      if (!sku || !dateValue || !Number.isFinite(quantity) || quantity < 0) return [];
-      const rawDate = dateValue instanceof Date ? dateValue.toISOString().slice(0, 10) : String(dateValue);
-      const date = /^\d{2}\.\d{2}\.\d{4}$/.test(rawDate) ? `${rawDate.slice(6)}-${rawDate.slice(3, 5)}-${rawDate.slice(0, 2)}` : rawDate.slice(0, 10);
-      return [{ sku, date, quantity, productName: String(row[mapping.productName] || sku), category: "Импорт" }];
-    });
-    if (!accepted.length) { setNotice("Не найдено валидных строк: проверьте сопоставление SKU, даты и количества."); return; }
-    const base = makeDemoData(); const importedSkus = [...new Map(accepted.map(row => [row.sku, row])).values()];
-    setDataset({ ...base, sales: accepted, products: importedSkus.map(row => ({ sku: row.sku, productName: row.productName, category: row.category, criticality: 3 })), inventory: importedSkus.map(row => ({ sku: row.sku, onHand: 0, reserved: 0, backorders: 0 })), transit: [], suppliers: base.suppliers.filter(supplier => importedSkus.some(row => row.sku === supplier.sku)) });
-    setShowUpload(false); setNotice(`Импортировано ${accepted.length} валидных строк. Остатки и поставщиков можно дополнить демо-набором.`);
+  function filterTo(filter: ProblemFilter) { setQuery({ ...INITIAL_QUERY, filter }); go('recommendations'); }
+  function selectSku(sku: string) { setSelectedSkus(values => values.includes(sku) ? values.filter(value => value !== sku) : [...values, sku]); }
+  function makeDraft() {
+    const next = createDraft(recommendations, selectedSkus, revision, salesOnly);
+    if (!next) { setMessage({ text: 'Выберите допустимые позиции. Причины ограничений доступны в карточках товаров.', tone: 'warning' }); return; }
+    setDraft(next); setMessage({ text: `Черновик из ${next.items.length} выбранных позиций создан в этой вкладке. Заказ не отправлен.`, tone: 'success' }); go('drafts');
   }
-  async function askAgent(question: string) {
-    if (!selected) return; setAsking(true);
-    const context = { productName: selected.productName, forecastDemand: selected.forecastDemand, stockPosition: selected.stockPosition, reorderPoint: selected.reorderPoint, recommendedQuantity: selected.recommendedQuantity, outliers: selected.outliers.length, supplier: selected.selectedSupplier?.supplierName, cost: selected.estimatedCost };
-    try { const response = await fetch("/api/agent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, context }) }); const data = await response.json(); setAgentReply(data.answer); }
-    catch { setAgentReply("Не удалось получить ответ. Расчёты и рекомендации остаются доступны в Demo Mode."); }
-    finally { setAsking(false); }
+  function reviewDraft() {
+    if (!draft) return;
+    const next = createDraft(recommendations, draft.items.map(item => item.sku), revision, salesOnly);
+    if (!next) { setMessage({ text: 'В прежнем составе нет допустимых позиций для нового расчёта. Перейдите к рекомендациям и выберите товары заново.', tone: 'warning' }); return; }
+    const removed = draft.items.length - next.items.length;
+    setDraft(next); setMessage({ text: `Черновик пересобран по текущему расчёту.${removed ? ` Исключено недоступных позиций: ${removed}.` : ''} Проверьте обновлённые количества.`, tone: removed ? 'warning' : 'success' });
   }
-
-  if (!dataset) return <main className="landing">
-    <div className="landing-orb orb-one" /><div className="landing-orb orb-two" />
-    <header className="landing-header"><div className="brand"><span className="brand-mark"><Boxes size={19} /></span><span>StockPilot <b>AI</b></span></div><span className="mode"><span /> Demo Mode готов</span></header>
-    <section className="hero"><div className="eyebrow"><Sparkles size={14} /> Логистика · Электрокомплект</div><h1>Закупки без<br /><em>дорогих ошибок.</em></h1><p>Автономный агент отделяет разовые всплески от реального спроса и готовит объяснимые заказы поставщикам.</p><div className="hero-actions"><button className="button primary" onClick={loadDemo}><Play size={17} fill="currentColor" /> Загрузить демо-данные</button><label className="button secondary"><Upload size={17} /> Загрузить Excel / CSV<input type="file" accept=".xlsx,.xls,.csv" onChange={onFile} /></label></div><div className="proof"><span><CircleCheck size={15} /> Детерминированные расчёты</span><span><CircleCheck size={15} /> Без API-ключа</span><span><CircleCheck size={15} /> 32 SKU · 36 недель</span></div></section>
-    <section className="landing-preview"><div className="preview-top"><span>Обнаружена аномалия</span><b>CAB-NYM-3X2.5</b><small>176 шт. · разовая продажа</small></div><div className="mini-chart">▁▂▂▃▂▃▂▂▂▃▂▂<i>█</i>▂▃▂▂▃</div><div className="preview-order"><span>Рекомендуемый заказ</span><strong>90 шт.</strong><small>Вместо наивных 210 шт.</small></div></section>
-  </main>;
-
-  return <main className="app-shell">
-    <aside className="sidebar"><div className="brand"><span className="brand-mark"><Boxes size={18} /></span><span>StockPilot <b>AI</b></span></div><div className="workspace">Рабочее пространство</div><nav><a className="nav-active"><Zap size={17} /> Обзор</a><a><PackageCheck size={17} /> Рекомендации <b>{kpis.critical}</b></a><a><ShoppingCart size={17} /> Черновики заказов</a><a><SlidersHorizontal size={17} /> Сценарии</a></nav><div className="sidebar-bottom"><div className="agent-card"><span><Bot size={17} /> Агент закупок</span><p>Все числа проверены детерминированными функциями.</p><i><span /> Demo Mode</i></div><button className="text-button" onClick={loadDemo}>↻ Сбросить демо</button></div></aside>
-    <section className="content">
-      <header className="topbar"><div><p className="breadcrumb">Электрокомплект / Закупки</p><h1>Панель пополнения</h1></div><div className="top-actions"><span className="mode"><span /> Demo Mode</span><label className="icon-button" title="Загрузить данные"><Upload size={18} /><input type="file" accept=".xlsx,.xls,.csv" onChange={onFile} /></label><button className="button dark" onClick={runAnalysis} disabled={processing}>{processing ? <Loader2 className="spin" size={17} /> : <Sparkles size={17} />} {processing ? "Анализируем..." : "Запустить анализ"}</button></div></header>
-      {notice && <div className="notice"><CircleCheck size={16} /> {notice}<button onClick={() => setNotice("")}><X size={15} /></button></div>}
-      {showUpload && <section className="upload-panel"><div className="section-title"><div><span className="eyebrow soft"><FileSpreadsheet size={14} /> Импорт данных</span><h2>{fileName}</h2><p>Проверьте автоматическое сопоставление перед запуском анализа.</p></div><button className="icon-button" onClick={() => setShowUpload(false)}><X size={18} /></button></div><div className="mapping-grid">{Object.entries(synonyms).map(([key]) => <label key={key}><span>{({ date: "Дата", sku: "SKU", productName: "Название", quantity: "Количество" } as Record<string, string>)[key]}</span><select value={mapping[key] || ""} onChange={event => setMapping({ ...mapping, [key]: event.target.value })}><option value="">Не сопоставлено</option>{fileRows[0] && Object.keys(fileRows[0]).map(header => <option key={header}>{header}</option>)}</select></label>)}</div><div className="preview-table"><span>Предпросмотр: {fileRows.length} строк · принято после проверки</span><pre>{JSON.stringify(fileRows.slice(0, 3), null, 2)}</pre></div><div className="row-end"><button className="button secondary" onClick={loadDemo}>Использовать демо вместо этого</button><button className="button dark" onClick={useImportedData}>Подтвердить сопоставление <ChevronRight size={17} /></button></div></section>}
-      <section className="kpis"><Kpi label="SKU проанализировано" value={number.format(kpis.sku)} detail="История, остатки, поставщики" icon={<Boxes />} tone="teal" /><Kpi label="Критический дефицит" value={number.format(kpis.critical)} detail="Нужно заказать сейчас" icon={<AlertTriangle />} tone="rose" /><Kpi label="Аномалий найдено" value={number.format(kpis.anomalies)} detail="Исключены из спроса" icon={<Sparkles />} tone="amber" /><Kpi label="Рекомендованный заказ" value={currency.format(kpis.orderCost)} detail={`Уверенность ${kpis.confidence}%`} icon={<ShoppingCart />} tone="violet" /></section>
-      <section className="grid-two"><Panel title="Риск дефицита" subtitle="По текущей позиции и срокам поставки"><ResponsiveContainer width="100%" height={230}><BarChart data={riskData}><CartesianGrid vertical={false} stroke="#e8edf1" /><XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "#74808e", fontSize: 11 }} /><YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#74808e", fontSize: 11 }} /><Tooltip cursor={{ fill: "#f5f7f8" }} /><Bar dataKey="value" radius={[7, 7, 2, 2]}>{riskData.map(item => <Cell key={item.label} fill={item.color} />)}</Bar></BarChart></ResponsiveContainer></Panel><Panel title="План закупок по категориям" subtitle="Рекомендуемое количество"><ResponsiveContainer width="100%" height={230}><BarChart layout="vertical" data={categoryData.slice(0, 6)} margin={{ left: 14 }}><CartesianGrid horizontal={false} stroke="#e8edf1" /><XAxis type="number" hide /><YAxis type="category" dataKey="name" width={112} tickLine={false} axisLine={false} tick={{ fill: "#74808e", fontSize: 11 }} /><Tooltip /><Bar dataKey="quantity" fill="#0f9b8e" radius={[0, 7, 7, 0]} /></BarChart></ResponsiveContainer></Panel></section>
-      <section className="activity"><div className="activity-icon"><Bot size={19} /></div><div><p>AI Agent Activity</p><strong>{kpis.sku} SKU обработано · {kpis.anomalies} выбросов отделено · {kpis.critical} рисков дефицита</strong></div><span>Данные не отправляются в LLM для расчётов</span></section>
-      <section className="section-head"><div><h2>Рекомендации к заказу</h2><p>Приоритизированы по риску дефицита, а не только по объёму продаж.</p></div><button className="button secondary" onClick={() => setShowOrder(true)}><ShoppingCart size={17} /> Создать заказ</button></section>
-      <div className="filters"><div className="pills">{["Все", "Критические", "Заказать", "Аномалии", "Проверка"].map(item => <button key={item} className={filter === item ? "selected" : ""} onClick={() => setFilter(item)}>{item}</button>)}</div><label className="search"><Search size={16} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="SKU, товар, категория" /></label></div>
-      <section className="table-card"><table><thead><tr><th>Статус</th><th>Товар</th><th>Позиция</th><th>Дней запаса</th><th>Прогноз</th><th>Рекомендация</th><th>Поставщик</th><th>Стоимость</th><th /></tr></thead><tbody>{visible.slice(0, 14).map(item => <tr key={item.sku} onClick={() => { setSelected(item); setAgentReply(""); }}><td><span className={`status ${statusClass[item.recommendationStatus]}`}>{item.recommendationStatus}</span></td><td><b>{item.productName}</b><small>{item.sku} · {item.category}</small></td><td>{number.format(item.stockPosition)}</td><td>{item.daysOfCover === 999 ? "—" : `${item.daysOfCover} дн.`}</td><td>{item.forecastDemand.toFixed(1)}<small>шт./нед.</small></td><td><b className="quantity">{number.format(item.recommendedQuantity)} шт.</b></td><td>{item.selectedSupplier?.supplierName ?? "—"}<small>{item.selectedSupplier ? `${item.leadTimeDays} дн.` : item.warnings[0]}</small></td><td>{item.estimatedCost ? currency.format(item.estimatedCost) : "—"}</td><td><ChevronRight size={17} /></td></tr>)}</tbody></table>{visible.length === 0 && <div className="empty">Нет рекомендаций с такими фильтрами.</div>}</section>
-      <section className="scenario-card"><div><span className="eyebrow soft"><SlidersHorizontal size={14} /> What-if симулятор</span><h2>Что если поставщик задержится?</h2><p>Сценарий пересчитывает точки заказа и приоритеты без изменения исходных данных.</p></div><div className="scenario-controls"><Range label="Спрос" value={`${Math.round(scenario.demandMultiplier * 100)}%`} min={80} max={150} current={scenario.demandMultiplier * 100} onChange={value => setScenario({ ...scenario, demandMultiplier: value / 100 })} /><Range label="Задержка" value={`+${scenario.delayDays} дн.`} min={0} max={21} current={scenario.delayDays} onChange={value => setScenario({ ...scenario, delayDays: value })} /><Range label="Бюджет" value={currency.format(scenario.budget)} min={250000} max={2500000} step={250000} current={scenario.budget} onChange={value => setScenario({ ...scenario, budget: value })} /></div></section>
-    </section>
-    {selected && <SkuDrawer item={selected} close={() => setSelected(null)} agentReply={agentReply} asking={asking} askAgent={askAgent} />}
-    {showOrder && <OrderDrawer items={recommendations.filter(item => item.recommendedQuantity > 0 && item.selectedSupplier)} close={() => setShowOrder(false)} />}
-  </main>;
+  const tableProps = { items: recommendations, dataset: dataset!, salesOnly, query, onQuery: setQuery, selected: selectedSkus, onSelect: setSelectedSkus, onOpen: setSelectedSku, onDraft: makeDraft };
+  return <div className={styles.shell}>
+    <a className={styles.skipLink} href="#workspace-main" onClick={event => { event.preventDefault(); const main = document.getElementById('workspace-main'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Перейти к содержимому</a>
+    <aside className={styles.sidebar}><a className={styles.brand} href="#overview" aria-label="StockPilot, обзор"><span><Boxes size={21} /></span><b>StockPilot<span className={styles.brandAi}>AI</span></b></a>
+      <div className={styles.workspaceLabel}>УПРАВЛЕНИЕ ЗАКУПКАМИ</div>
+      <nav aria-label="Основные разделы">{sections.map(({ id, name, icon: Icon }) => <a key={id} href={`#${id}`} aria-current={section === id ? 'page' : undefined}><Icon size={18} /><span>{name}</span>{id === 'drafts' && draft && <b className={styles.navCount}>1</b>}</a>)}</nav>
+      <div className={styles.sidebarFooter}><div><span className={styles.workspaceAvatar}>Э</span><span><b>Электрокомплект</b><small>Рабочее пространство</small></span></div><p><Check size={14} /> Объяснимые рекомендации</p></div>
+    </aside>
+    <div className={styles.mainColumn}>
+      <header className={styles.contextBar}><div className={styles.contextName}><Button variant="ghost" className={styles.mobileToggle} aria-expanded={menuOpen} aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={19} /> : <Menu size={19} />}</Button><span>Закупки</span><ChevronRight size={14} /><strong>{sections.find(item => item.id === section)?.name}</strong></div><div className={styles.sourceContext}><span className={styles.sourceBadge}><Database size={13} />{sourceLabel}</span><span className={styles.period}>{period}</span></div></header>
+      {menuOpen && <nav className={styles.mobileMenu} aria-label="Мобильная навигация">{sections.map(({id,name,icon:Icon}) => <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)} aria-current={section === id ? 'page' : undefined}><Icon size={17} />{name}</a>)}</nav>}
+      <main id="workspace-main" className={styles.workspace} tabIndex={-1}>
+        {message && <div className={styles.message}><Notice tone={message.tone} onDismiss={() => setMessage(null)}>{message.text}</Notice></div>}
+        {section === 'data' ? <>
+          <PageHeader title="Данные" description="Источник расчётов и качество исходной истории." action={!importing ? <Button variant="primary" onClick={openImport}><Upload size={16} /> Импортировать данные</Button> : undefined} />
+          {importing ? <ImportPanel onImport={(data, fileName) => loadData(data, { kind: 'import', name: fileName })} onCancel={() => setImporting(false)} /> : dataset ? <>
+            <section className={styles.panel}><div className={styles.sectionHeading}><div><h2><FileSpreadsheet size={19} /> {source?.name}</h2><p>{sourceLabel} · {period}</p></div><Button onClick={() => loadData(makeDemoData(), { kind: 'demo', name: 'Демонстрационный набор StockPilot' })}>Открыть демо</Button></div><div className={styles.dataMetrics}><div><strong>{integer(dataset.products.length)}</strong><span>товаров</span></div><div><strong>{integer(dataset.sales.length)}</strong><span>строк продаж</span></div><div><strong>{dataset.inventory.length ? integer(dataset.inventory.length) : 'Не загружены'}</strong><span>остатки по SKU</span></div><div><strong>{dataset.suppliers.length ? integer(dataset.suppliers.length) : 'Не загружены'}</strong><span>условия поставщиков</span></div></div></section>
+            {salesOnly && <Notice tone="warning">Поддержан импорт продаж. Остатки, поставки в пути и условия поставщиков не загружены; их значения неизвестны. Создание закупочных черновиков заблокировано. Для полного демонстрационного сценария откройте демо.</Notice>}
+            <section className={styles.panel}><div className={styles.sectionHeading}><div><h2>Недельная структура истории</h2><p>Требуется для прогноза в штуках за неделю и проверки на истории</p></div></div>{weeklyIssues.length ? <><Notice tone="warning">{weeklyIssues.length} товаров требуют подготовки недельного ряда. Пропуски не заполнены нулями.</Notice><ul className={styles.issueList}>{weeklyIssues.map(issue => <li key={issue.sku}><strong>{issue.sku}</strong> — {issue.reason}</li>)}</ul></> : <Notice tone="success">У каждого товара последовательная недельная история без дублей и пропусков.</Notice>}<p className={styles.helper}>Данные и черновики находятся в памяти текущей вкладки. Перезагрузка очищает их; импортированный файл не сохраняется в браузере автоматически.</p></section>
+          </> : <EmptyState title="Добавьте историю продаж" description="Импортируйте Excel / CSV или откройте воспроизводимый демонабор с остатками и поставщиками."><Button onClick={() => loadData(makeDemoData(), { kind: 'demo', name: 'Демонстрационный набор StockPilot' })}><Play size={16} /> Открыть демо</Button></EmptyState>}
+        </> : !dataset ? <>
+          <PageHeader eyebrow="РАБОЧЕЕ ПРОСТРАНСТВО" title="Решения о закупках — с объяснением" description="StockPilot связывает продажи, регулярный спрос и количество к заказу." />
+          <section className={styles.welcome}><div className={styles.welcomeIcon}><Boxes size={30} /></div><h2>Начните с ваших данных</h2><p>Загрузите историю продаж или изучите полный сценарий на демонстрационном ассортименте.</p><div className={styles.welcomeActions}><Button variant="primary" onClick={() => loadData(makeDemoData(), { kind: 'demo', name: 'Демонстрационный набор StockPilot' })}><Play size={16} /> Открыть демо</Button><Button onClick={openImport}><Upload size={16} /> Импортировать Excel / CSV</Button></div><div className={styles.steps}>{[{icon:Database,title:'История продаж',text:'Проверьте исходные данные'},{icon:Activity,title:'Регулярный спрос',text:'Посмотрите найденные всплески'},{icon:Package,title:'Рекомендация',text:'Разберите расчёт количества'},{icon:FileSpreadsheet,title:'Черновик заказа',text:'Выберите позиции и выгрузите'}].map(({icon:Icon,title,text},index)=><div key={title}><span>{String(index+1).padStart(2,'0')}<Icon size={17}/></span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
+        </> : section === 'overview' ? <>
+          <PageHeader title="Панель пополнения" description={`${recommendations.length} товаров · приоритеты по текущему сценарию`} action={<Button variant="primary" onClick={() => filterTo('order')}>К рекомендациям <ArrowRight size={16} /></Button>} />
+          {salesOnly && <Notice tone="warning">Загружены только продажи. Для оценки склада и закупок нужны остатки и условия поставщиков. Подробности — в разделе «Данные».</Notice>}
+          <section className={styles.kpiStrip} aria-label="Сводка по всему ассортименту"><Kpi label="Риск дефицита" value={salesOnly ? '—' : summary.risk} description={salesOnly ? 'Нет подтверждённых остатков' : `Товаров с высоким и критическим риском · ${summary.critical} срочных`} /><Kpi label="План закупки" value={salesOnly ? '—' : money(summary.cost)} description="Сумма допустимых рекомендаций" /><Kpi label="Аномальные наблюдения" value={summary.anomalies} description={`В истории ${summary.anomalySkus} товаров, а не число SKU`} /><Kpi label="Требуют проверки" value={summary.quality} description="Товары с проблемами данных или условий" /></section>
+          <section className={styles.attention}><div><span className={styles.smallLabel}>ТРЕБУЕТ ВНИМАНИЯ</span><p>Начните с позиций, для которых нужно решение</p></div><div className={styles.attentionItems}>{[{label:'Срочные позиции',value:summary.critical,filter:'urgent' as const},{label:'Нет поставщика',value:summary.supplier,filter:'supplier' as const},{label:'Вне бюджета',value:summary.budget,filter:'budget' as const}].filter(item => item.value > 0).map(item=><button key={item.filter} onClick={() => filterTo(item.filter)}><b>{item.value}</b>{item.label}<ChevronRight size={15}/></button>)}{summary.critical + summary.supplier + summary.budget === 0 && <span className={styles.clearState}><Check size={16}/> Срочных проблем нет</span>}</div></section>
+          <RecommendationsTable {...tableProps} compact onAll={() => go('recommendations')} />
+          <section className={styles.panel}><div className={styles.sectionHeading}><div><h2><BarChart3 size={17}/> Как обоснован заказ</h2><p>От исходной истории до решения о закупке</p></div><Button variant="ghost" onClick={() => go('backtest')}>Проверить на истории <ArrowRight size={15}/></Button></div><div className={styles.explanationFlow}><div><span>01</span><b>Продажи</b><p>{integer(dataset.sales.length)} исходных наблюдений</p></div><ArrowRight size={17}/><div><span>02</span><b>Всплески</b><p>{summary.anomalies} наблюдений отмечено</p></div><ArrowRight size={17}/><div><span>03</span><b>Регулярный прогноз</b><p>Очищенная история и веса недель</p></div><ArrowRight size={17}/><div><span>04</span><b>Количество к заказу</b><p>Позиция, сроки, MOQ и бюджет</p></div></div></section>
+        </> : section === 'recommendations' ? <>
+          <PageHeader title="Рекомендации" description={`${recommendations.length} товаров · выберите позиции для закупочного черновика`} />
+          {salesOnly && <div className={styles.message}><Notice tone="warning">Остатки и условия поставщиков неизвестны. Закупочные действия недоступны; история и её проверка доступны в карточках.</Notice></div>}
+          <RecommendationsTable {...tableProps}/>
+        </> : section === 'scenarios' ? <ScenarioPanel key={revision} scenario={scenario} base={base} current={recommendations} salesOnly={salesOnly} onApply={value => { setScenario(value); setMessage({ text:'Сценарий применён. Рекомендации, показатели и открываемые карточки обновлены. Существующий черновик нужно пересмотреть.', tone:'success' }); }} onOpen={setSelectedSku} />
+        : section === 'backtest' ? <HistoryPanel dataset={dataset} recommendations={recommendations} sourceLabel={source?.kind === 'demo' ? 'Демо-данные основного приложения · 36 недель' : `Импортированный файл: ${source?.name}`} sku={historySku} onSku={setHistorySku} dataRevision={dataRevision}/>
+        : <DraftPanel draft={draft} revision={revision} onReview={reviewDraft} onRecommendations={() => go('recommendations')} onMessage={(text,tone)=>setMessage({text,tone})}/>}
+      </main>
+    </div>
+    {selectedItem && dataset && <SkuDrawer item={selectedItem} dataset={dataset} revision={revision} salesOnly={salesOnly} onClose={()=>setSelectedSku(null)} onSelect={sku=>{ if (!selectedSkus.includes(sku) && orderBlockReason(selectedItem,salesOnly)) return; selectSku(sku); }} selected={selectedSkus.includes(selectedItem.sku)} />}
+  </div>;
 }
-
-function Kpi({ label, value, detail, icon, tone }: { label: string; value: string; detail: string; icon: React.ReactNode; tone: string }) { return <article className="kpi"><span className={`kpi-icon ${tone}`}>{icon}</span><p>{label}</p><strong>{value}</strong><small>{detail}</small></article>; }
-function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) { return <section className="panel"><div className="panel-heading"><div><h3>{title}</h3><p>{subtitle}</p></div><button className="icon-button"><Filter size={16} /></button></div>{children}</section>; }
-function Range({ label, value, min, max, step = 1, current, onChange }: { label: string; value: string; min: number; max: number; step?: number; current: number; onChange: (value: number) => void }) { return <label className="range"><span>{label}<b>{value}</b></span><input type="range" min={min} max={max} step={step} value={current} onChange={event => onChange(Number(event.target.value))} /></label>; }
-
-function SkuDrawer({ item, close, agentReply, asking, askAgent }: { item: Recommendation; close: () => void; agentReply: string; asking: boolean; askAgent: (question: string) => Promise<void> }) {
-  const chart = item.rawHistory.map((raw, index) => ({ week: `W${index + 1}`, raw, clean: item.cleanedHistory[index], forecast: index >= item.rawHistory.length - 8 ? item.forecastDemand : undefined, anomaly: item.outliers.some(outlier => outlier.quantity === raw) ? raw : undefined }));
-  return <div className="drawer-backdrop" onMouseDown={close}><aside className="drawer" onMouseDown={event => event.stopPropagation()}><header><div><span className={`status ${statusClass[item.recommendationStatus]}`}>{item.recommendationStatus}</span><h2>{item.productName}</h2><p>{item.sku} · {item.category}</p></div><button className="icon-button" onClick={close}><X size={19} /></button></header><section className="recommendation-hero"><p>Рекомендуемый заказ</p><strong>{number.format(item.recommendedQuantity)} <small>шт.</small></strong><span>{item.selectedSupplier?.supplierName ?? "Требуется поставщик"} · {item.selectedSupplier ? currency.format(item.estimatedCost) : "Без цены"}</span></section><section className="detail-chart"><div className="legend"><span><i className="raw" /> Продажи</span><span><i className="clean" /> Очищенная история</span><span><i className="forecast" /> Прогноз</span></div><ResponsiveContainer width="100%" height={220}><LineChart data={chart}><CartesianGrid vertical={false} stroke="#e8edf1" /><XAxis dataKey="week" hide /><YAxis tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "#74808e" }} /><Tooltip /><Line dataKey="raw" stroke="#cbd5e1" strokeWidth={1.5} dot={false} /><Line dataKey="clean" stroke="#0f9b8e" strokeWidth={2.5} dot={false} /><Line dataKey="forecast" stroke="#6d5dfc" strokeDasharray="5 4" strokeWidth={2} dot={false} /></LineChart></ResponsiveContainer>{item.outliers.length > 0 && <div className="outlier-note"><AlertTriangle size={16} /> Всплеск {number.format(item.outliers[0].quantity)} шт. исключён из базового прогноза.</div>}</section><section className="metrics"><Metric label="Точка заказа" value={`${number.format(item.reorderPoint)} шт.`} /><Metric label="Страховой запас" value={`${number.format(item.safetyStock)} шт.`} /><Metric label="В позиции" value={`${number.format(item.stockPosition)} шт.`} /><Metric label="Срок поставки" value={`${item.leadTimeDays} дн.`} /><Metric label="MOQ / упаковка" value={`${item.minOrderQty} / ${item.packSize}`} /><Metric label="Уверенность" value={`${item.confidenceScore}%`} /></section><section className="formula"><h3>Почему именно столько?</h3><p>Целевой запас {number.format(item.targetStock)} − текущая позиция {number.format(item.stockPosition)} = {number.format(item.rawRecommendedQuantity)}. Результат округлён до упаковки {item.packSize} и MOQ {item.minOrderQty}.</p></section><section className="agent-box"><div><Bot size={18} /><b>AI-ассистент</b><span>Числа берёт только из расчёта</span></div>{agentReply ? <p>{agentReply}</p> : <p className="muted">Спросите, почему система выбрала именно такую рекомендацию.</p>}<button className="button dark wide" disabled={asking} onClick={() => askAgent("Почему система рекомендует именно это количество?")}>{asking ? <Loader2 className="spin" size={16} /> : <Send size={16} />} Объяснить рекомендацию</button></section></aside></div>;
-}
-function Metric({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><b>{value}</b></div>; }
-function OrderDrawer({ items, close }: { items: Recommendation[]; close: () => void }) { const grouped = Object.values(items.reduce<Record<string, Recommendation[]>>((acc, item) => { const name = item.selectedSupplier?.supplierName || "Без поставщика"; (acc[name] ??= []).push(item); return acc; }, {})); const total = items.reduce((sum, item) => sum + item.estimatedCost, 0); return <div className="drawer-backdrop" onMouseDown={close}><aside className="drawer order-drawer" onMouseDown={event => event.stopPropagation()}><header><div><span className="eyebrow soft"><ShoppingCart size={14} /> Черновики заказов</span><h2>Заказы поставщикам</h2><p>Позиции не отправляются автоматически.</p></div><button className="icon-button" onClick={close}><X size={19} /></button></header>{grouped.map(group => <section className="po-group" key={group[0].selectedSupplier?.supplierId}><h3>{group[0].selectedSupplier?.supplierName}<small>{group[0].selectedSupplier?.reliabilityScore}% надёжности</small></h3>{group.map(item => <div className="po-line" key={item.sku}><span><b>{item.productName}</b><small>{item.sku} · MOQ {item.minOrderQty} · упаковка {item.packSize}</small></span><b>{item.recommendedQuantity} шт.<small>{currency.format(item.estimatedCost)}</small></b></div>)}</section>)}<footer className="order-footer"><div><span>Итого к заказу</span><strong>{currency.format(total)}</strong></div><button className="button dark wide" onClick={() => downloadCsv(items)}><ArrowDownToLine size={17} /> Скачать CSV</button><button className="button secondary wide" onClick={() => navigator.clipboard.writeText(`Тема: Черновик заказа StockPilot\n\n${items.map(item => `${item.productName} — ${item.recommendedQuantity} шт.`).join("\n")}`)}>Копировать текст письма</button></footer></aside></div>; }

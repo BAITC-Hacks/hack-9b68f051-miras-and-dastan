@@ -1,1 +1,14 @@
-body{margin:0;background:#f3f6f7}button,input,select{font-family:inherit}
+:root {
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --foreground: #0F172A;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-soft: #EFF6FF;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --divider: #E2E8F0;
+  color-scheme: light;
+}
+body { margin: 0; background: var(--background); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: var(--foreground); }
+button, input, select { font-family: inherit; }
